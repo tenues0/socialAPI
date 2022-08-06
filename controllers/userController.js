@@ -2,8 +2,6 @@ const { ObjectId } = require('mongoose').Types;
 const { User, Reaction, Thought } = require('../models');
 
 
-// const { Student, Course } = require('../models');
-
 
 // Aggregate function to get the number of users overall
 const headCount = async () =>
@@ -14,9 +12,9 @@ const headCount = async () =>
 
 // DO I need any part of this function?
 // Aggregate function for getting the overall grade using $avg
-const grade = async (userId) =>
+const userThoughts = async (userId) =>
   User.aggregate([
-    // only include the given student by using $match
+    // only include the given user by using $match
     { $match: { _id: ObjectId(userId) } },
     {
       $unwind: '$thoughts',
@@ -24,7 +22,6 @@ const grade = async (userId) =>
     {
       $group: {
         _id: ObjectId(userId),
-        // overallGrade: { $avg: '$assignments.score' },
       },
     },
   ]);
@@ -49,12 +46,13 @@ module.exports = {
   getSingleUser(req, res) {
     User.findOne({ _id: req.params.userId })
       .select('-__v')
+      // .populate('thoughts')
       .then(async (user) =>
         !user
           ? res.status(404).json({ message: 'No user with that ID' })
           : res.json({
             user,
-              // grade: await grade(req.params.studentId),
+            userThoughts: await userThoughts(req.params.userId),
             })
       )
       .catch((err) => {
@@ -94,6 +92,28 @@ module.exports = {
         res.status(500).json(err);
       });
   },
+
+  // console.log('req.params.userId', req.params.userId),
+  // console.log('req.params.friendId', req.params.friendId),
+  // Add a friend to a user
+  addFriend(req, res) {
+    console.log('You are adding a friend');
+    // console.log(req.body);
+    User.findOneAndUpdate(
+      { _id: req.params.userId },
+      { $addToSet: { friends: req.params.friendId} },
+      { runValidators: true, new: true }
+    )
+      .then((user) =>
+        !user
+          ? res
+              .status(404)
+              .json({ message: 'No user found with that ID :(' })
+          : res.json(user)
+      )
+      .catch((err) => res.status(500).json(err));
+  },
+
 
   // Add a thought to a user
   addThought(req, res) {

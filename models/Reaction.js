@@ -2,21 +2,21 @@ const { Schema, Types } = require('mongoose');
 
 const reactionSchema = new Schema(
   {
-    assignmentId: {
+    reactionId: {
       type: Schema.Types.ObjectId,
       default: () => new Types.ObjectId(),
     },
-    assignmentName: {
+    reactionBody: {
       type: String,
       required: true,
-      maxlength: 50,
+      maxlength: 280,
       minlength: 4,
-      default: 'Unnamed assignment',
+      default: 'Unnamed reaction',
     },
-    score: {
-      type: Number,
+    // gets the username that created the thought
+    username: {
+      type: String,
       required: true,
-      default: () => Math.floor(Math.random() * (100 - 70 + 1) + 70),
     },
     createdAt: {
       type: Date,
@@ -31,4 +31,9 @@ const reactionSchema = new Schema(
   }
 );
 
-module.exports = assignmentSchema;
+// getter method to format the timestamp on query
+reactionSchema.virtual('timestampFormat').get(function () {
+  return this.createdAt.toISOString().split("T") [0];
+});
+
+module.exports = reactionSchema;

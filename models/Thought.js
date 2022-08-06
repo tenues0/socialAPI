@@ -14,14 +14,12 @@ const thoughtSchema = new Schema(
       type: Date,
       default: Date.now(),
     },
-    // gets the username that created the thought
-    username: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-      },
-    ],
     reactions: [reactionSchema],
+    // gets the username that created the thought
+    username: {
+      type: String,
+      required: true,
+    },
   },
   {
     toJSON: {

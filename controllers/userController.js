@@ -11,7 +11,7 @@ const headCount = async () =>
 
 
 // DO I need any part of this function?
-// Aggregate function for getting the overall grade using $avg
+// Aggregate function
 const userThoughts = async (userId) =>
   User.aggregate([
     // only include the given user by using $match
@@ -74,24 +74,40 @@ module.exports = {
       .then((user) =>
         !user
           ? res.status(404).json({ message: 'No such user exists' })
-          : Course.findOneAndUpdate(
+          : Thought.findOneAndUpdate(
               { users: req.params.userId },
-              { $pull: { students: req.params.userId } },
+              { $pull: { users: req.params.userId } },
               { new: true }
             )
       )
-      .then((course) =>
-        !course
+      .then((thought) =>
+        !thought
           ? res.status(404).json({
-              message: 'Student deleted, but no courses found',
+              message: 'User deleted, but no thoughts found',
             })
-          : res.json({ message: 'Student successfully deleted' })
+          : res.json({ message: 'User successfully deleted' })
       )
       .catch((err) => {
         console.log(err);
         res.status(500).json(err);
       });
   },
+
+  // updateUser
+  updateUser(req, res) {
+    User.findOneAndUpdate(
+      { _id: req.params.userId },
+      { $set: req.body },
+      { runValidators: true, new: true }
+    )
+      .then((user) =>
+        !user
+          ? res.status(404).json({ message: 'No user with this id!' })
+          : res.json(user)
+      )
+      .catch((err) => res.status(500).json(err));
+  },
+
 
   // console.log('req.params.userId', req.params.userId),
   // console.log('req.params.friendId', req.params.friendId),

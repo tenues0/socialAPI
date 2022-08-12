@@ -8,6 +8,7 @@ const {
   addThought,
   removeThought,
   addFriend,
+  removeFriend,
 } = require('../../controllers/userController');
 
 // /api/users
@@ -19,11 +20,14 @@ router.route('/:userId').get(getSingleUser).delete(deleteUser).put(updateUser);
 // /api/users/:userId/thoughts
 router.route('/:userId/thoughts').post(addThought);
 
-// /api/users/:userId/assignments/:assignmentId
+// /api/users/:userId/thoughts/:thoughtId
 router.route('/:userId/thoughts/:thoughtId').delete(removeThought);
 
 // friends post route
-router.route('/:userId/friends/:friendId').post(addFriend);
+router.route('/:userId/friends/:friendId').post(addFriend).delete(removeFriend);
 
 
 module.exports = router;
+
+
+// make sure that when all users is called that the throughts and friends populate

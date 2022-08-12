@@ -46,43 +46,71 @@ module.exports = {
       .catch((err) => res.status(500).json(err));
   },
 
-      // Add a thought to a user
-      addThought(req, res) {
-        console.log('You are adding a thought');
-        Thought.create(req.body)
-          .then((thought) => {
-            User.findOneAndUpdate(
-              { _id: req.params.userId },
-              { $addToSet: { thoughts: req.params.thoughtId} },
-              { runValidators: true, new: true }
-            )
-            .then(thought)
-              !thought
-              ? res
-                  .status(404).json({ message: 'Thought not added' })
-                  : res.json(thought)
-            })
-          .catch((err) => res.status(500).json(err));
-      },
-
-      // Update Reaction
-      updateReaction(req, res) {
-        Reaction.findOneAndUpdate(
+  // Add a thought to a user
+  addThought(req, res) {
+    console.log('You are adding a thought');
+    Thought.create(req.body)
+      .then((thought) => {
+        User.findOneAndUpdate(
           { _id: req.params.userId },
-          { $pull: { thought: { thoughtId: req.params.thoughtId } } },
+          { $addToSet: { thoughts: req.params.thoughtId} },
           { runValidators: true, new: true }
         )
-          .then((user) =>
-            !user
-              ? res
-                  .status(404)
-                  .json({ message: 'No user found with that ID :(' })
-              : res.json(user)
-          )
-          .catch((err) => res.status(500).json(err));
-      },
+        .then(thought)
+          !thought
+          ? res
+              .status(404).json({ message: 'Thought not added' })
+              : res.json(thought)
+        })
+      .catch((err) => res.status(500).json(err));
+  },
 
+  // Add a thought to a user
+  addReaction(req, res) {
+    console.log('You are adding a reaction');
+    Reaction.create(req.body)
+      .then((reaction) => {
+        Thought.findOneAndUpdate(
+          { _id: req.params.thoughtId },
+          { $addToSet: { reactions: req.params.reactionId} },
+          { runValidators: true, new: true }
+        )
+        .then(reaction)
+          !reaction
+          ? res
+              .status(404).json({ message: 'Reaction not added' })
+              : res.json(reaction)
+        })
+      .catch((err) => res.status(500).json(err));
+  },
 
+  // Delete a reaction from a thought
+  deleteReaction(req, res) {
+    Reaction.findOneAndDelete({ _id: req.params.reactionId })
+      .then((reaction) =>
+        !reaction
+          ? res.status(404).json({ message: 'No reaction with that ID' })
+          : Thought.deleteMany({ _id: { $in: reaction.thoughts } })
+      )
+      .then(() => res.json({ message: 'Reaction deleted!' }))
+      .catch((err) => res.status(500).json(err));
+  },
 
+  // Update Reaction
+  updateReaction(req, res) {
+    Reaction.findOneAndUpdate(
+      { _id: req.params.userId },
+      { $pull: { thought: { thoughtId: req.params.thoughtId } } },
+      { runValidators: true, new: true }
+    )
+      .then((user) =>
+        !user
+          ? res
+              .status(404)
+              .json({ message: 'No user found with that ID :(' })
+          : res.json(user)
+      )
+      .catch((err) => res.status(500).json(err));
+  },
 
 };

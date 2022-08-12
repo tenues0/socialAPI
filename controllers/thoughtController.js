@@ -1,5 +1,4 @@
 const { User, Reaction, Thought } = require('../models');
-// const { Course, Student } = require('../models');
 
 
 module.exports = {
@@ -20,16 +19,8 @@ module.exports = {
       )
       .catch((err) => res.status(500).json(err));
   },
-  // Create a thought
-  createThought(req, res) {
-    Thought.create(req.body)
-      .then((thought) => res.json(thought))
-      .catch((err) => {
-        console.log(err);
-        return res.status(500).json(err);
-      });
-  },
-  // Delete a thought
+
+  // Delete a thought from a user
   deleteThought(req, res) {
     Thought.findOneAndDelete({ _id: req.params.thoughtId })
       .then((thought) =>
@@ -54,4 +45,44 @@ module.exports = {
       )
       .catch((err) => res.status(500).json(err));
   },
+
+      // Add a thought to a user
+      addThought(req, res) {
+        console.log('You are adding a thought');
+        Thought.create(req.body)
+          .then((thought) => {
+            User.findOneAndUpdate(
+              { _id: req.params.userId },
+              { $addToSet: { thoughts: req.params.thoughtId} },
+              { runValidators: true, new: true }
+            )
+            .then(thought)
+              !thought
+              ? res
+                  .status(404).json({ message: 'Thought not added' })
+                  : res.json(thought)
+            })
+          .catch((err) => res.status(500).json(err));
+      },
+
+      // Update Reaction
+      updateReaction(req, res) {
+        Reaction.findOneAndUpdate(
+          { _id: req.params.userId },
+          { $pull: { thought: { thoughtId: req.params.thoughtId } } },
+          { runValidators: true, new: true }
+        )
+          .then((user) =>
+            !user
+              ? res
+                  .status(404)
+                  .json({ message: 'No user found with that ID :(' })
+              : res.json(user)
+          )
+          .catch((err) => res.status(500).json(err));
+      },
+
+
+
+
 };

@@ -1,5 +1,5 @@
 const { ObjectId } = require('mongoose').Types;
-const { User, Reaction, Thought } = require('../models');
+const { User, Thought } = require('../models');
 
 
 
@@ -144,38 +144,6 @@ module.exports = {
         )
         .catch((err) => res.status(500).json(err));
     },
-  // Add a thought to a user
-  addThought(req, res) {
-    console.log('You are adding a thought');
-    console.log(req.body);
-    User.findOneAndUpdate(
-      { _id: req.params.userId },
-      { $addToSet: { thoughts: req.body } },
-      { runValidators: true, new: true }
-    )
-      .then((user) =>
-        !user
-          ? res
-              .status(404)
-              .json({ message: 'No user found with that ID :(' })
-          : res.json(user)
-      )
-      .catch((err) => res.status(500).json(err));
-  },
-  // Remove thought from a user
-  removeThought(req, res) {
-    User.findOneAndUpdate(
-      { _id: req.params.userId },
-      { $pull: { thought: { thoughtId: req.params.thoughtId } } },
-      { runValidators: true, new: true }
-    )
-      .then((user) =>
-        !user
-          ? res
-              .status(404)
-              .json({ message: 'No user found with that ID :(' })
-          : res.json(user)
-      )
-      .catch((err) => res.status(500).json(err));
-  },
+
+
 };

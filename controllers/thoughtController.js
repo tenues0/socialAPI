@@ -85,40 +85,20 @@ module.exports = {
         )
       .catch((err) => res.status(500).json(err));
   },
-
-
-
-
-
-
-
-  // findoneandupdate for the thought
-  // model this function after the remove friend function by using pull method
-  // Delete a reaction from a thought
+  // Remove reaction from a thought
   deleteReaction(req, res) {
-    Reaction.findOneAndDelete({ _id: req.params.reactionId })
-      .then((reaction) =>
-        !reaction
-          ? res.status(404).json({ message: 'No reaction with that ID' })
-          : Thought.deleteMany({ _id: { $in: reaction.thoughts } })
-      )
-      .then(() => res.json({ message: 'Reaction deleted!' }))
-      .catch((err) => res.status(500).json(err));
-  },
-
-  // Update Reaction
-  updateReaction(req, res) {
-    Reaction.findOneAndUpdate(
-      { _id: req.params.userId },
-      { $pull: { thought: { thoughtId: req.params.thoughtId } } },
+    console.log('You are removing a reaction');
+    Thought.findOneAndUpdate(
+      { _id: req.params.thoughtId },
+      { $pull: { reactions: { reactionId: req.params.reactionId } } },
       { runValidators: true, new: true }
     )
-      .then((user) =>
-        !user
+      .then((thought) =>
+        !thought
           ? res
               .status(404)
-              .json({ message: 'No user found with that ID :(' })
-          : res.json(user)
+              .json({ message: 'No thought found with that ID' })
+          : res.json(thought)
       )
       .catch((err) => res.status(500).json(err));
   },

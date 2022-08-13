@@ -51,39 +51,49 @@ module.exports = {
     console.log('You are adding a thought');
     Thought.create(req.body)
       .then((thought) => {
-        User.findOneAndUpdate(
-          { _id: req.params.userId },
-          { $addToSet: { thoughts: req.params.thoughtId} },
+        console.log(thought)
+        return User.findOneAndUpdate(
+          { _id: req.body.userId },
+          { $addToSet: { thoughts: thought._id} },
           { runValidators: true, new: true }
-        )
-        .then(thought)
+        );
+      })
+      .then(thought => 
           !thought
           ? res
               .status(404).json({ message: 'Thought not added' })
               : res.json(thought)
-        })
+      )
+        
       .catch((err) => res.status(500).json(err));
   },
 
-  // Add a thought to a user
+  // Add a reaction to a user
+  // do not need reaction.create, add reactions directly into thoughts
   addReaction(req, res) {
     console.log('You are adding a reaction');
-    Reaction.create(req.body)
-      .then((reaction) => {
         Thought.findOneAndUpdate(
           { _id: req.params.thoughtId },
-          { $addToSet: { reactions: req.params.reactionId} },
+          { $addToSet: { reactions: req.body} },
           { runValidators: true, new: true }
         )
-        .then(reaction)
+        .then(reaction =>
           !reaction
           ? res
               .status(404).json({ message: 'Reaction not added' })
               : res.json(reaction)
-        })
+        )
       .catch((err) => res.status(500).json(err));
   },
 
+
+
+
+
+
+
+  // findoneandupdate for the thought
+  // model this function after the remove friend function by using pull method
   // Delete a reaction from a thought
   deleteReaction(req, res) {
     Reaction.findOneAndDelete({ _id: req.params.reactionId })
